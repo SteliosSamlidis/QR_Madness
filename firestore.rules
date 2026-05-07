@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ────────────────────────────────────────────────────
+
+    // True when the request comes from a signed-in user.
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // True when the calling user owns the document (stored as createdBy).
+    function isOwner(resource) {
+      return request.auth.uid == resource.data.createdBy;
+    }
+
+    // True when the incoming write only touches the 'status' field.
+    function isStatusUpdateOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status']);
+    }
+
+    // True when 'status' is one of the two valid enum values.
+    function isValidStatus() {
+      return request.resource.data.status in ['pending', 'completed'];
+    }
+
+    // ── /users/{userId} ──────────────────────────────────────────────────────
+    // Written on sign-up / sign-in to persist the user's email.
+    match /users/{userId} {
+      // A user may only read and write their own document.
+      allow read, write: if isAuthenticated()
+                         && request.auth.uid == userId;
+    }
+
+    // ── /entries/{entryId} ──────────────────────────────────────────────────
+    match /entries/{entryId} {
+
+      // Any authenticated user can read all entries (real-time list).
+      allow read: if isAuthenticated();
+
+      // Any authenticated user can create an entry, provided:
+      //   • createdBy is set to their own uid (prevents impersonation)
+      //   • status starts as 'pending'
+      //   • required fields are present and correctly typed
+      allow create: if isAuthenticated()
+                    && request.resource.data.createdBy == request.auth.uid
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.name is string
+                    && request.resource.data.surname is string
+                    && request.resource.data.prescriptionNumber is string
+                    && request.resource.data.createdAt is timestamp;
+
+      // Any authenticated user can flip the status field on any entry,
+      // but they may not alter any other field in the same write.
+      allow update: if isAuthenticated()
+                    && isStatusUpdateOnly()
+                    && isValidStatus();
+
+      // Only the original creator can delete their own entry.
+      allow delete: if isAuthenticated() && isOwner(resource);
+    }
+
+  }
+}
