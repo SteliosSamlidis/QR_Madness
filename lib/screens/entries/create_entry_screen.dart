@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +40,7 @@ class _CreateEntryScreenState extends State<CreateEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _surnameController;
-  late final TextEditingController _prescriptionController;
+  late final TextEditingController _telephoneController;
 
   final _imageService = ImageService();
   final _entryService = EntryService();
@@ -57,8 +56,8 @@ class _CreateEntryScreenState extends State<CreateEntryScreen> {
     final e = widget.entry;
     _nameController = TextEditingController(text: e?.name ?? '');
     _surnameController = TextEditingController(text: e?.surname ?? '');
-    _prescriptionController =
-        TextEditingController(text: e?.prescriptionNumber ?? '');
+    _telephoneController =
+        TextEditingController(text: e?.telephone ?? '');
 
     // Pre-populate photos from existing entry.
     _photos = e != null
@@ -73,7 +72,7 @@ class _CreateEntryScreenState extends State<CreateEntryScreen> {
   void dispose() {
     _nameController.dispose();
     _surnameController.dispose();
-    _prescriptionController.dispose();
+    _telephoneController.dispose();
     for (final p in _photos) {
       p.dispose();
     }
@@ -165,7 +164,7 @@ class _CreateEntryScreenState extends State<CreateEntryScreen> {
         storeId: widget.entry?.storeId ?? widget.storeId ?? '',
         name: _nameController.text.trim(),
         surname: _surnameController.text.trim(),
-        prescriptionNumber: _prescriptionController.text.trim(),
+        telephone: _telephoneController.text.trim(),
         photos: uploadedPhotos,
         status: widget.entry?.status ?? EntryStatus.pending,
         createdBy: widget.entry?.createdBy ?? currentUser.uid,
@@ -259,12 +258,11 @@ class _CreateEntryScreenState extends State<CreateEntryScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildField(
-                    controller: _prescriptionController,
-                    label: 'Prescription number (optional)',
-                    icon: Icons.numbers_outlined,
+                    controller: _telephoneController,
+                    label: 'Telephone (optional)',
+                    icon: Icons.phone_outlined,
                     action: TextInputAction.done,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    keyboardType: TextInputType.phone,
                     onFieldSubmitted: (_) => _save(),
                   ),
                   const SizedBox(height: 32),
@@ -318,7 +316,6 @@ class _CreateEntryScreenState extends State<CreateEntryScreen> {
     required TextInputAction action,
     FormFieldValidator<String>? validator,
     TextInputType? keyboardType,
-    List<TextInputFormatter>? inputFormatters,
     ValueChanged<String>? onFieldSubmitted,
   }) {
     return TextFormField(
@@ -326,7 +323,6 @@ class _CreateEntryScreenState extends State<CreateEntryScreen> {
       textInputAction: action,
       textCapitalization: TextCapitalization.words,
       keyboardType: keyboardType,
-      inputFormatters: inputFormatters,
       enabled: !_saving,
       onFieldSubmitted: onFieldSubmitted,
       decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon)),

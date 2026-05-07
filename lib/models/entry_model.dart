@@ -11,7 +11,7 @@ class EntryModel {
   final String storeId;
   final String name;
   final String surname;
-  final String prescriptionNumber;
+  final String telephone;
   final List<EntryPhoto> photos;
   final EntryStatus status;
   final String createdBy;
@@ -23,7 +23,7 @@ class EntryModel {
     required this.storeId,
     required this.name,
     required this.surname,
-    required this.prescriptionNumber,
+    required this.telephone,
     required this.photos,
     required this.status,
     required this.createdBy,
@@ -56,7 +56,7 @@ class EntryModel {
       storeId: data['storeId'] as String? ?? '',
       name: data['name'] as String,
       surname: data['surname'] as String,
-      prescriptionNumber: data['prescriptionNumber'] as String,
+      telephone: data['telephone'] as String? ?? '',
       photos: photos,
       status: EntryStatus.values.byName(data['status'] as String),
       createdBy: data['createdBy'] as String,
@@ -69,7 +69,7 @@ class EntryModel {
         'storeId': storeId,
         'name': name,
         'surname': surname,
-        'prescriptionNumber': prescriptionNumber,
+        'telephone': telephone,
         'photos': photos.map((p) => p.toMap()).toList(),
         'status': status.name,
         'createdBy': createdBy,
@@ -81,7 +81,7 @@ class EntryModel {
     String? storeId,
     String? name,
     String? surname,
-    String? prescriptionNumber,
+    String? telephone,
     List<EntryPhoto>? photos,
     EntryStatus? status,
     String? createdBy,
@@ -93,7 +93,7 @@ class EntryModel {
       storeId: storeId ?? this.storeId,
       name: name ?? this.name,
       surname: surname ?? this.surname,
-      prescriptionNumber: prescriptionNumber ?? this.prescriptionNumber,
+      telephone: telephone ?? this.telephone,
       photos: photos ?? this.photos,
       status: status ?? this.status,
       createdBy: createdBy ?? this.createdBy,

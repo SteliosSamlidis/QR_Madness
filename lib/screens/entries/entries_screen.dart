@@ -486,23 +486,25 @@ class _EntryCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 3),
-                    Row(
-                      children: [
-                        const Icon(Icons.numbers_outlined,
-                            size: 13, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            entry.prescriptionNumber,
-                            style:
-                                TextStyle(color: Colors.grey[600], fontSize: 13),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    if (entry.telephone.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          const Icon(Icons.phone_outlined,
+                              size: 13, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              entry.telephone,
+                              style: TextStyle(
+                                  color: Colors.grey[600], fontSize: 13),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                    ],
                     Row(
                       children: [
                         Icon(Icons.person_outline,

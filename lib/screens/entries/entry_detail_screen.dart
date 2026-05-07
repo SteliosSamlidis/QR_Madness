@@ -136,9 +136,9 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
                   ),
                   const SizedBox(height: 14),
                   _InfoRow(
-                    icon: Icons.numbers_outlined,
-                    label: 'Prescription number',
-                    value: _entry.prescriptionNumber,
+                    icon: Icons.phone_outlined,
+                    label: 'Telephone',
+                    value: _entry.telephone.isNotEmpty ? _entry.telephone : '—',
                   ),
                   const SizedBox(height: 14),
                   _InfoRow(
