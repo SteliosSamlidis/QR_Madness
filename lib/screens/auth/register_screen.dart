@@ -59,8 +59,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.person_add_outlined,
-                      size: 56, color: Colors.deepPurple),
+                  Icon(Icons.person_add_outlined,
+                      size: 56, color: Theme.of(context).colorScheme.primary),
                   const SizedBox(height: 24),
                   Text(
                     'Create your account',

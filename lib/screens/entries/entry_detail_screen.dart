@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/entry_model.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/entry_service.dart';
 import '../../widgets/app_snackbar.dart';
 import 'create_entry_screen.dart';
@@ -101,22 +103,24 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
         title: Text('${_entry.name} ${_entry.surname}'),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Edit entry',
-            onPressed: () => Navigator.push<EntryModel>(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => CreateEntryScreen(entry: _entry)),
-            ).then((updated) {
-              if (updated != null) setState(() => _entry = updated);
-            }),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.red),
-            tooltip: 'Delete entry',
-            onPressed: _confirmDelete,
-          ),
+          if (context.watch<AuthProvider>().isAdmin) ...[
+            IconButton(
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: 'Edit entry',
+              onPressed: () => Navigator.push<EntryModel>(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => CreateEntryScreen(entry: _entry)),
+              ).then((updated) {
+                if (updated != null) setState(() => _entry = updated);
+              }),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              tooltip: 'Delete entry',
+              onPressed: _confirmDelete,
+            ),
+          ],
         ],
       ),
       body: SingleChildScrollView(
@@ -173,7 +177,9 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
     return _entry.photos.asMap().entries.map((e) {
       final index = e.key;
       final photo = e.value;
-      final label = _entry.photos.length > 1 ? 'Photo ${index + 1}' : null;
+      final hasDesc = photo.description.isNotEmpty;
+      final fallback = _entry.photos.length > 1 ? 'Photo ${index + 1}' : null;
+      final headerText = hasDesc ? photo.description : fallback;
 
       return Container(
         margin: const EdgeInsets.only(bottom: 4),
@@ -185,17 +191,18 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Photo label for multi-photo entries
-            if (label != null)
+            // Description as header above the photo
+            if (headerText != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                 child: Text(
-                  label,
+                  headerText,
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[500],
-                    letterSpacing: 0.5,
+                    fontSize: hasDesc ? 16 : 13,
+                    fontWeight:
+                        hasDesc ? FontWeight.w600 : FontWeight.w500,
+                    color: hasDesc ? null : Colors.grey[500],
+                    letterSpacing: hasDesc ? 0 : 0.4,
                   ),
                 ),
               ),
@@ -207,24 +214,12 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
               child: _buildPhotoImage(photo.url),
             ),
 
-            // Description + stage toggle
+            // Stage toggle
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: photo.description.isNotEmpty
-                        ? Text(
-                            photo.description,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[700],
-                              fontStyle: FontStyle.italic,
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  const SizedBox(width: 12),
                   _StageChip(
                     done: photo.done,
                     updating: _updating,

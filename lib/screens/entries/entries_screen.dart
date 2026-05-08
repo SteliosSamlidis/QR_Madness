@@ -405,31 +405,32 @@ class _FilterBar extends StatelessWidget {
 class _StatusChoiceChip extends StatelessWidget {
   final String label;
   final bool selected;
-  final Color selectedColor;
+  final Color? selectedColor;
   final ValueChanged<bool> onSelected;
 
   const _StatusChoiceChip({
     required this.label,
     required this.selected,
-    this.selectedColor = Colors.deepPurple,
+    this.selectedColor,
     required this.onSelected,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color = selectedColor ?? Theme.of(context).colorScheme.primary;
     return ChoiceChip(
       label: Text(label),
       selected: selected,
       onSelected: onSelected,
-      selectedColor: selected ? selectedColor.withAlpha(30) : null,
-      checkmarkColor: selectedColor,
+      selectedColor: selected ? color.withAlpha(30) : null,
+      checkmarkColor: color,
       labelStyle: TextStyle(
         fontSize: 13,
-        color: selected ? selectedColor : null,
+        color: selected ? color : null,
         fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
       ),
       side: BorderSide(
-        color: selected ? selectedColor.withAlpha(120) : Colors.grey.shade300,
+        color: selected ? color.withAlpha(120) : Colors.grey.shade300,
       ),
       visualDensity: VisualDensity.compact,
     );

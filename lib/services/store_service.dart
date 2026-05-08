@@ -21,6 +21,13 @@ class StoreService {
   Future<void> deleteStore(String id) =>
       _col.doc(id).delete().timeout(const Duration(seconds: 15));
 
-  Future<void> updateStoreName(String id, String name) =>
-      _col.doc(id).update({'name': name}).timeout(const Duration(seconds: 15));
+  Future<void> updateStore(String id, String name, String? pin) {
+    final data = <String, dynamic>{'name': name};
+    if (pin != null && pin.isNotEmpty) {
+      data['pin'] = pin;
+    } else {
+      data['pin'] = FieldValue.delete();
+    }
+    return _col.doc(id).update(data).timeout(const Duration(seconds: 15));
+  }
 }

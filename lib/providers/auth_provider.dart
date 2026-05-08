@@ -6,7 +6,11 @@ import '../repositories/auth_repository.dart';
 
 const bool kBypassAuth = true;
 
-const _kGuestUser = UserModel(uid: 'guest', email: 'guest@test.com');
+const _kGuestUser = UserModel(
+  uid: 'guest',
+  email: 'guest@test.com',
+  role: UserRole.admin,
+);
 
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _repo = AuthRepository();
@@ -19,17 +23,19 @@ class AuthProvider extends ChangeNotifier {
   UserModel? get user => _user;
   bool get initialized => _initialized;
   bool get isAuthenticated => _user != null;
+  bool get isAdmin => _user?.isAdmin ?? false;
   bool get loading => _loading;
   String? get error => _error;
 
   AuthProvider() {
-    // authStateChanges fires immediately with the persisted session (or null),
-    // so _initialized is set to true after the very first emission.
     if (kBypassAuth) return;
-    _repo.authStateChanges.listen((User? firebaseUser) {
-      _user = firebaseUser == null
-          ? null
-          : UserModel(uid: firebaseUser.uid, email: firebaseUser.email ?? '');
+    _repo.authStateChanges.listen((User? firebaseUser) async {
+      if (firebaseUser == null) {
+        _user = null;
+      } else {
+        _user = await _repo.fetchUser(
+            firebaseUser.uid, firebaseUser.email ?? '');
+      }
       _initialized = true;
       notifyListeners();
     });
